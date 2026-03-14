@@ -1,4 +1,5 @@
 .vscode
 /build
-testData/orderMessages.txt
-testData/tickers.txt
+/testData/orderMessages.txt
+/testData/tickers.txt
+/debug
