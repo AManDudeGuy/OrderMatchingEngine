@@ -1,32 +1,11 @@
+#include "RandOrderGen.hpp"
+#include "RandomOrder.hpp"
 #include <fstream>
 #include <iostream>
 #include <random>
 #include <vector>
 #include <chrono>
 #include <iomanip>
-
-const int BUY = 0;
-const int SELL = 1;
-
-struct OrderMessage{
-    std::string_view ticker{};
-    int buyOrSell{};
-    int price{}; // in cents to avoid floating point errors
-    int amountOfShares{};
-};
-
-OrderMessage randomOrderMessage(const std::vector<std::string>& tickerArr){
-
-    // random generators for OrderMessage members
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_int_distribution<> tickerDistrib(0, tickerArr.size() - 1);
-    static std::uniform_int_distribution<> buySellDistrib(0, 1);
-    static std::uniform_int_distribution<> priceDistrib(0, 100000);
-    static std::uniform_int_distribution<> amountDistrib(1, 100);
-
-    return OrderMessage {tickerArr[tickerDistrib(gen)], buySellDistrib(gen), priceDistrib(gen), amountDistrib(gen)};
-}
 
 void printOrderToFile(std::ofstream& outFile, OrderMessage om){
     outFile << om.ticker << ","
@@ -39,7 +18,7 @@ void printOrderToFile(std::ofstream& outFile, OrderMessage om){
 // Generates random order messages to test the matching engine on
 int main(int argc, char* argv[]){
 
-    const int numMessages = 10'000'000;
+    const int numMessages = std::stoi(argv[3]);
     auto start = std::chrono::steady_clock::now();
 
     std::ofstream orderMessageFile(argv[1]);
@@ -59,9 +38,14 @@ int main(int argc, char* argv[]){
     tickerFile.close();
     
 
-   for(int i = 0; i < numMessages; i++){
+   for(int i = 0; i < numMessages - 1; i++){
         printOrderToFile(orderMessageFile, randomOrderMessage(tickerArr));
     }
+    OrderMessage last = randomOrderMessage(tickerArr);
+    orderMessageFile << last.ticker << ","
+    << last.buyOrSell << ","
+    << last.price << ","
+    << last.amountOfShares;
 
     std::cout << "Generated file\n";
     orderMessageFile.close();
