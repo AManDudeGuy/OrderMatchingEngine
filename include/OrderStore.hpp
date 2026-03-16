@@ -12,11 +12,12 @@ public:
     
     void pushOrder(OrderMessage order);
     OrderMessage popBuyOrder();
-    
     OrderMessage popSellOrder();    
     OrderMessage showBuyOrder();
     OrderMessage showSellOrder();
     void changeBuyOrderAmount(int decrease);
     void changeSellOrderAmount(int decrease);
+
+    OrderStore();
 
 };
